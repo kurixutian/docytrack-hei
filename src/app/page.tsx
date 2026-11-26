@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,6 +26,14 @@ import {
 } from "lucide-react";
 
 export default function HomePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background" aria-busy="true" />}>
+      <HomePageContent />
+    </Suspense>
+  );
+}
+
+function HomePageContent() {
   const { user, profile } = useAuth();
   const [authOpen, setAuthOpen] = useState(false);
   const searchParams = useSearchParams();

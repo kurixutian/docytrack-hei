@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -120,6 +120,14 @@ async function fetchDepartment(departmentId: string) {
 }
 
 export default function TrackPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background" aria-busy="true" />}>
+      <TrackPageContent />
+    </Suspense>
+  );
+}
+
+function TrackPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [authOpen, setAuthOpen] = useState(false);
