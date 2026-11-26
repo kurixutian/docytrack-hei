@@ -1,0 +1,14 @@
+node_modules/
+.next/
+dist/
+build/
+.impeccable/
+.taste-skill/
+
+# Environment files
+.env
+.env.*
+.env.local
+.env.*.local
+*.env
+!.env.example
