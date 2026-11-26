@@ -302,7 +302,7 @@ export default function StudentRequestDetailPage() {
                   <div key={step.id} className="flex gap-4 relative">
                     <div className="absolute left-5 top-10 bottom-0 w-0.5 bg-border" style={{ display: index === workflowSteps.length - 1 ? 'none' : 'block' }} />
                     <div className={cn(
-                      "relative flex-shrink-0 w-10 h-10 rounded-full border-2 flex items-center justify-center z-10 transition-all",
+                      "relative flex-shrink-0 w-10 h-10 rounded-full border-2 flex items-center justify-center z-10 transition-colors",
                       isCompleted ? "bg-primary border-primary text-primary-foreground" :
                       isCurrent ? "bg-primary border-primary text-primary-foreground ring-4 ring-primary/20" :
                       "bg-background border-muted text-muted-foreground"
@@ -363,9 +363,9 @@ export default function StudentRequestDetailPage() {
                           )} />
                           <div className={cn(
                             "relative z-10 w-3 h-3 rounded-full border-2 flex items-center justify-center",
-                            log.action_taken === "submit" ? "bg-green-500 border-green-500" :
-                            log.action_taken === "return" || log.action_taken === "reject" ? "bg-red-500 border-red-500" :
-                            log.action_taken === "release" || log.action_taken === "approve" ? "bg-emerald-500 border-emerald-500" :
+                            log.action_taken === "submit" ? "bg-success border-success" :
+                            log.action_taken === "return" || log.action_taken === "reject" ? "bg-destructive border-destructive" :
+                            log.action_taken === "release" || log.action_taken === "approve" ? "bg-success border-success" :
                             "bg-primary border-primary"
                           )}>
                             {log.action_taken === "submit" && <CheckCircle className="h-2 w-2 text-white" />}

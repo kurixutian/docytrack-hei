@@ -57,19 +57,19 @@ export function generatePublicLookupToken(): string {
 
 export function getStatusColor(status: string): string {
   const colors: Record<string, string> = {
-    submitted: 'bg-blue-100 text-blue-800',
-    received: 'bg-indigo-100 text-indigo-800',
-    under_review: 'bg-purple-100 text-purple-800',
-    endorsed: 'bg-cyan-100 text-cyan-800',
-    forwarded: 'bg-teal-100 text-teal-800',
-    returned: 'bg-orange-100 text-orange-800',
-    additional_info_requested: 'bg-amber-100 text-amber-800',
-    approved: 'bg-green-100 text-green-800',
-    rejected: 'bg-red-100 text-red-800',
-    released: 'bg-emerald-100 text-emerald-800',
-    archived: 'bg-gray-100 text-gray-800',
+    submitted: 'bg-primary text-primary-foreground',
+    received: 'bg-primary text-primary-foreground',
+    under_review: 'bg-muted text-muted-foreground',
+    endorsed: 'bg-accent text-accent-foreground',
+    forwarded: 'bg-accent text-accent-foreground',
+    returned: 'bg-destructive text-destructive-foreground',
+    additional_info_requested: 'bg-warning text-warning-foreground',
+    approved: 'bg-success text-success-foreground',
+    rejected: 'bg-destructive text-destructive-foreground',
+    released: 'bg-success text-success-foreground',
+    archived: 'bg-muted text-muted-foreground',
   };
-  return colors[status] || 'bg-gray-100 text-gray-800';
+  return colors[status] || 'bg-muted text-muted-foreground';
 }
 
 export function getStatusLabel(status: string): string {

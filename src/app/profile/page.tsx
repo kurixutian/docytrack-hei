@@ -77,7 +77,7 @@ export default function ProfilePage() {
         </div>
 
         {success && (
-          <div className="flex items-center gap-2 p-3 rounded-md bg-green-50 text-green-800 text-sm">
+          <div className="flex items-center gap-2 p-3 rounded-md bg-success/10 text-success text-sm">
             <CheckCircle className="h-4 w-4" />
             Profile updated successfully
           </div>

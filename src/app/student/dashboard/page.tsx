@@ -134,7 +134,7 @@ export default function StudentDashboard() {
               <Clock className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-semibold tracking-tight tabular-nums text-amber-600 dark:text-amber-400">{stats.pending}</div>
+              <div className="text-3xl font-semibold tracking-tight tabular-nums text-warning">{stats.pending}</div>
               <p className="text-xs text-muted-foreground mt-1">Awaiting office review</p>
             </CardContent>
           </Card>
@@ -144,7 +144,7 @@ export default function StudentDashboard() {
               <CheckCircle className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-semibold tracking-tight tabular-nums text-emerald-600 dark:text-emerald-400">{stats.completed}</div>
+              <div className="text-3xl font-semibold tracking-tight tabular-nums text-success">{stats.completed}</div>
               <p className="text-xs text-muted-foreground mt-1">Approved & released</p>
             </CardContent>
           </Card>
@@ -154,7 +154,7 @@ export default function StudentDashboard() {
               <XCircle className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-semibold tracking-tight tabular-nums text-rose-600 dark:text-rose-400">{stats.rejected}</div>
+              <div className="text-3xl font-semibold tracking-tight tabular-nums text-destructive">{stats.rejected}</div>
               <p className="text-xs text-muted-foreground mt-1">Requires student revision</p>
             </CardContent>
           </Card>

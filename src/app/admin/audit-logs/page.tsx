@@ -98,6 +98,30 @@ export default function AdminAuditLogsPage() {
     "return", "request_additional_info", "approve", "reject", "release", "archive"
   ];
 
+  const exportLogs = () => {
+    const columns = ["Time", "Tracking Number", "Student", "Student ID", "Action", "Previous Status", "New Status", "Handler", "From Department", "To Department", "Public Remarks"];
+    const rows = filteredLogs.map((log) => [
+      log.created_at,
+      log.documents?.tracking_no,
+      log.documents?.student_name,
+      log.documents?.student_id,
+      log.action_taken,
+      log.previous_status,
+      log.new_status,
+      log.handled_by_profile?.full_name,
+      log.origin_department?.department_name,
+      log.destination_department?.department_name,
+      log.public_remarks,
+    ]);
+    const csv = [columns, ...rows].map((row) => row.map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`).join(",")).join("\r\n");
+    const url = URL.createObjectURL(new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `docutrack-audit-logs-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -106,7 +130,7 @@ export default function AdminAuditLogsPage() {
             <h1 className="text-2xl font-bold">Audit Logs</h1>
             <p className="text-muted-foreground">System-wide activity and audit trail</p>
           </div>
-          <Button variant="outline">
+          <Button variant="outline" onClick={exportLogs} disabled={!filteredLogs.length}>
             <Download className="h-4 w-4 mr-2" />
             Export Logs
           </Button>

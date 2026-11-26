@@ -37,8 +37,9 @@ export async function middleware(request: NextRequest) {
     );
 
     if (isProtectedPath && !localSession) {
-      const redirectUrl = new URL('/login', request.url);
+      const redirectUrl = new URL('/', request.url);
       redirectUrl.searchParams.set('callbackUrl', request.nextUrl.pathname);
+      redirectUrl.searchParams.set('auth', 'signin');
       return NextResponse.redirect(redirectUrl);
     }
 
@@ -126,8 +127,9 @@ export async function middleware(request: NextRequest) {
   );
 
   if (isProtectedPath && !user) {
-    const redirectUrl = new URL('/login', request.url);
+    const redirectUrl = new URL('/', request.url);
     redirectUrl.searchParams.set('callbackUrl', request.nextUrl.pathname);
+    redirectUrl.searchParams.set('auth', 'signin');
     return NextResponse.redirect(redirectUrl);
   }
 

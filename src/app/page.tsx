@@ -1,11 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/context/AuthContext";
+import { AuthDialog } from "@/components/AuthDialog";
 import {
   Search,
   Shield,
@@ -17,10 +20,20 @@ import {
   Building2,
   CheckCircle,
   ChevronRight,
+  ArrowUpRight,
+  CircleDot,
+  Landmark,
 } from "lucide-react";
 
 export default function HomePage() {
   const { user, profile } = useAuth();
+  const [authOpen, setAuthOpen] = useState(false);
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || undefined;
+
+  useEffect(() => {
+    if (!user && searchParams.get("auth") === "signin") setAuthOpen(true);
+  }, [user, searchParams]);
 
   const roleDashboardMap: Record<string, string> = {
     student: "/student/dashboard",
@@ -49,13 +62,13 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Navigation */}
-      <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+      <nav className="sticky top-0 z-50 border-b border-border/80 bg-background/90 backdrop-blur-md">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2">
-            <GraduationCap className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold text-primary">DocuTrack HEI</span>
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground"><Landmark className="h-5 w-5" /></span>
+            <span className="text-lg font-semibold tracking-tight text-foreground">DocuTrack <span className="font-normal text-muted-foreground">HEI</span></span>
           </div>
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
@@ -75,9 +88,9 @@ export default function HomePage() {
                 </Link>
               </Button>
             ) : (
-              <Link href="/login" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Sign In
-              </Link>
+              <button type="button" onClick={() => setAuthOpen(true)} className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+                Sign in
+              </button>
             )}
             <Button asChild>
               <Link href="/track" className="inline-flex items-center gap-2">
@@ -94,9 +107,7 @@ export default function HomePage() {
                 <Link href={dashboardHref}>Dashboard</Link>
               </Button>
             ) : (
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/login">Sign In</Link>
-              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setAuthOpen(true)}>Sign in</Button>
             )}
             <Button size="sm" variant={user ? "outline" : "default"} asChild>
               <Link href="/track" className="inline-flex items-center gap-1.5">
@@ -109,35 +120,35 @@ export default function HomePage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-background border-b py-20 lg:py-28">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-3xl text-center">
-            <div className="inline-flex items-center gap-2 rounded-full border bg-muted/60 px-4 py-1.5 text-sm font-medium text-foreground mb-6">
-              Academic Document Tracking for Philippine HEIs
+      <section className="relative overflow-hidden border-b border-border bg-[#e9eee7]">
+        <div className="container relative mx-auto grid min-h-[610px] items-center gap-12 px-4 py-16 lg:grid-cols-[1.08fr_.92fr] lg:py-24">
+          <div className="max-w-2xl">
+            <div className="mb-7 flex items-center gap-2 text-sm font-medium text-primary"><span className="h-px w-8 bg-primary" />A clearer route through campus</div>
+            <h1 className="mb-6 max-w-xl font-serif text-5xl leading-[1.08] tracking-[-.04em] text-[#183b35] sm:text-6xl lg:text-[4.4rem]">Every request has a next step.</h1>
+            <p className="mb-9 max-w-lg text-lg leading-8 text-[#53615a]">Follow academic documents from your desk to the right campus office. See where a request is, who has it, and what happens next.</p>
+            <div className="flex flex-wrap items-center gap-4">
+              <Button size="lg" asChild className="h-12 rounded-md px-6 shadow-none"><Link href="/track">Track a request <ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button>
+              {user ? <Link href={dashboardHref} className="inline-flex h-12 items-center gap-2 px-3 text-sm font-medium text-[#294a42] hover:underline">Open dashboard<ChevronRight className="h-4 w-4" /></Link> : <button type="button" onClick={() => setAuthOpen(true)} className="inline-flex h-12 items-center gap-2 px-3 text-sm font-medium text-[#294a42] hover:underline">Staff sign in<ChevronRight className="h-4 w-4" /></button>}
             </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-6">
-              Digitized Academic Request
-              <br />
-              <span className="text-primary">Routing & Verification</span>
-            </h1>
-            <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Eliminate lost paperwork and unclear processing status.
-              DocuTrack HEI provides real-time verification and role-based clearance routing for colleges and universities.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-in-from-bottom" style={{ animationDelay: "200ms" }}>
-              <Button size="lg" asChild className="gap-2">
-                <Link href="/track">
-                  <Search className="h-5 w-5" />
-                  Track Your Document
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link href={user ? dashboardHref : "/login"}>
-                  {user ? "Go to Dashboard" : "Access Dashboard"}
-                  <ChevronRight className="h-4 w-4" />
-                </Link>
-              </Button>
+            <div className="mt-12 flex items-center gap-3 border-t border-[#cbd5cc] pt-5 text-sm text-[#53615a]"><Shield className="h-4 w-4 text-primary" />Private by design. Public tracking shows progress only.</div>
+          </div>
+          <div className="relative mx-auto w-full max-w-[520px] lg:ml-auto">
+            <div className="absolute -right-8 -top-8 h-44 w-44 rounded-full border border-[#9caf9f]/50" />
+            <div className="relative rounded-lg border border-[#c9d3ca] bg-white p-6 shadow-[0_24px_60px_-34px_rgba(29,57,47,.34)] sm:p-8">
+              <div className="mb-7 flex items-start justify-between gap-4"><div><p className="text-sm font-medium text-muted-foreground">Request lookup</p><h2 className="mt-1 text-2xl font-semibold tracking-tight">Where is it now?</h2></div><span className="grid h-11 w-11 place-items-center rounded-md bg-[#e9f1ec] text-primary"><Search className="h-5 w-5" /></span></div>
+              <form action="/track" method="GET" className="space-y-3">
+                <label htmlFor="hero-tracking" className="text-sm font-medium">Tracking number</label>
+                <input id="hero-tracking" name="tracking" required placeholder="DT-2026-ABC12345" className="h-12 w-full rounded-md border border-input bg-white px-4 font-mono text-sm outline-none placeholder:font-sans placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-primary/30" />
+                <Button type="submit" className="h-12 w-full rounded-md">Find my request <ArrowUpRight className="ml-2 h-4 w-4" /></Button>
+              </form>
+              <div className="mt-8 border-t border-border pt-6">
+                <p className="mb-4 text-xs font-semibold text-muted-foreground">A request moves through</p>
+                <div className="flex items-center justify-between gap-1 text-center text-xs font-medium text-[#455851]">
+                  {["Department", "Dean", "Registrar"].map((office, index) => <div key={office} className="flex flex-1 items-center gap-1"><div className="flex flex-col items-center gap-2"><span className={`grid h-8 w-8 place-items-center rounded-full ${index === 0 ? "bg-primary text-white" : "bg-[#edf1ed] text-primary"}`}>{index === 0 ? <CircleDot className="h-4 w-4" /> : index + 1}</span><span>{office}</span></div>{index < 2 && <span className="mb-5 h-px flex-1 bg-[#cdd7ce]" />}</div>)}
+                </div>
+              </div>
             </div>
+            <div className="absolute -bottom-5 -left-6 hidden items-center gap-3 rounded-md border border-[#d4ddd5] bg-white px-4 py-3 shadow-sm sm:flex"><span className="h-2.5 w-2.5 rounded-full bg-[#b97828]" /><span className="text-sm font-medium">Status updates as offices act</span></div>
           </div>
         </div>
       </section>
@@ -295,7 +306,7 @@ export default function HomePage() {
               <h4 className="font-semibold mb-4">Quick Links</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link href="/track" className="hover:text-foreground transition-colors">Track Document</Link></li>
-                <li><Link href={user ? dashboardHref : "/login"} className="hover:text-foreground transition-colors">{user ? "Dashboard" : "Sign In"}</Link></li>
+                <li>{user ? <Link href={dashboardHref} className="hover:text-foreground transition-colors">Dashboard</Link> : <button type="button" onClick={() => setAuthOpen(true)} className="hover:text-foreground transition-colors">Sign in</button>}</li>
               </ul>
             </div>
             <div>
@@ -306,14 +317,7 @@ export default function HomePage() {
                 <li>Phone: +63 (XX) XXX-XXXX</li>
               </ul>
             </div>
-            <div>
-              <h4 className="font-semibold mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="#" className="hover:text-foreground transition-colors">Privacy Policy</Link></li>
-                <li><Link href="#" className="hover:text-foreground transition-colors">Terms of Service</Link></li>
-                <li><Link href="#" className="hover:text-foreground transition-colors">Data Protection</Link></li>
-              </ul>
-            </div>
+
           </div>
           <Separator />
           <p className="text-center text-sm text-muted-foreground mt-8">
@@ -321,6 +325,7 @@ export default function HomePage() {
           </p>
         </div>
       </footer>
+      <AuthDialog open={authOpen} onOpenChange={setAuthOpen} callbackUrl={callbackUrl} />
     </div>
   );
 }

@@ -221,19 +221,19 @@ export default function AdminDashboard() {
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span>Database Connection</span>
-                    <Badge className="bg-green-100 text-green-800">Connected</Badge>
+                    <Badge className="bg-success/10 text-success">Connected</Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>Authentication</span>
-                    <Badge className="bg-green-100 text-green-800">Active</Badge>
+                    <Badge className="bg-success/10 text-success">Active</Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>Real-time</span>
-                    <Badge className="bg-green-100 text-green-800">Enabled</Badge>
+                    <Badge className="bg-success/10 text-success">Enabled</Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>Storage</span>
-                    <Badge className="bg-yellow-100 text-yellow-800">75% Used</Badge>
+                    <Badge className="bg-warning/10 text-warning">75% Used</Badge>
                   </div>
                 </CardContent>
               </Card>

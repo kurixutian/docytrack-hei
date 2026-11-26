@@ -11,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Toaster } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { createClient } from "@/lib/supabase/client";
 import { formatDate, getStatusLabel, getStatusColor, generateTrackingNumber, generatePublicLookupToken, cn } from "@/lib/utils";
@@ -229,7 +228,7 @@ export default function NewRequestPage() {
         <AlertDialog open={success} onOpenChange={setSuccess}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <div className="flex items-center gap-2 text-emerald-600 mb-2">
+              <div className="flex items-center gap-2 text-success mb-2">
                 <CheckCircle className="h-6 w-6" />
                 <AlertDialogTitle className="text-xl">Request Submitted Successfully!</AlertDialogTitle>
               </div>

@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { formatDate, formatDateTime, formatRelativeTime, getStatusLabel, getStatusColor, cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
+import { AuthDialog } from "@/components/AuthDialog";
 
 interface DocumentLog {
   id: string;
@@ -47,51 +48,38 @@ interface DocumentLog {
 interface Document {
   id: string;
   tracking_no: string;
-  student_id: string;
-  student_name: string;
-  student_email: string;
-  college: string;
-  department_id: string;
-  program: string | null;
-  year_level: number | null;
   document_type_id: string;
   current_status: string;
   current_department_id: string | null;
-  current_handler_id: string | null;
   workflow_template_id: string;
   current_step_id: string | null;
   submitted_at: string;
   updated_at: string;
   completed_at: string | null;
-  public_lookup_token: string;
 }
 
 interface WorkflowStep {
   id: string;
   step_order: number;
   step_name: string;
-  assigned_role: string;
-  assigned_department_id: string | null;
-  allowed_actions: any;
-  expected_duration_days: number | null;
 }
 
 async function fetchDocumentByTracking(trackingNo: string) {
-  const supabase = createClient();
+  const supabase = createClient({ "x-tracking-no": trackingNo });
   const { data, error } = await supabase
     .from("documents")
-    .select("*")
+    .select("id, tracking_no, document_type_id, current_status, current_department_id, workflow_template_id, current_step_id, submitted_at, updated_at, completed_at")
     .eq("tracking_no", trackingNo)
     .single();
   if (error) throw error;
   return data as Document;
 }
 
-async function fetchDocumentLogs(documentId: string) {
-  const supabase = createClient();
+async function fetchDocumentLogs(documentId: string, trackingNo: string) {
+  const supabase = createClient({ "x-tracking-no": trackingNo });
   const { data, error } = await supabase
     .from("document_logs")
-    .select("*")
+    .select("id, action_taken, previous_status, new_status, origin_department_id, destination_department_id, handled_by, public_remarks, created_at")
     .eq("document_id", documentId)
     .order("created_at", { ascending: true });
   if (error) throw error;
@@ -102,7 +90,7 @@ async function fetchWorkflowSteps(workflowId: string) {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("workflow_steps")
-    .select("*")
+    .select("id, step_order, step_name")
     .eq("workflow_id", workflowId)
     .order("step_order", { ascending: true });
   if (error) throw error;
@@ -113,7 +101,7 @@ async function fetchDocumentType(documentTypeId: string) {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("document_types")
-    .select("*")
+    .select("type_name, description")
     .eq("id", documentTypeId)
     .single();
   if (error) throw error;
@@ -124,7 +112,7 @@ async function fetchDepartment(departmentId: string) {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("departments")
-    .select("*")
+    .select("department_name")
     .eq("id", departmentId)
     .single();
   if (error) throw error;
@@ -134,6 +122,7 @@ async function fetchDepartment(departmentId: string) {
 export default function TrackPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [authOpen, setAuthOpen] = useState(false);
   const initialTracking = searchParams.get("tracking") || "";
   const [trackingNumber, setTrackingNumber] = useState(initialTracking);
   const [document, setDocument] = useState<Document | null>(null);
@@ -155,7 +144,7 @@ export default function TrackPage() {
       const doc = await fetchDocumentByTracking(cleanTracking);
       setDocument(doc);
       const [logsData, stepsData, typeData, deptData] = await Promise.all([
-        fetchDocumentLogs(doc.id),
+        fetchDocumentLogs(doc.id, cleanTracking),
         fetchWorkflowSteps(doc.workflow_template_id),
         fetchDocumentType(doc.document_type_id).catch(() => null),
         doc.current_department_id ? fetchDepartment(doc.current_department_id).catch(() => null) : null,
@@ -223,9 +212,7 @@ export default function TrackPage() {
             <span className="text-xl font-bold text-primary">DocuTrack HEI</span>
           </Link>
           <div className="flex items-center gap-4">
-            <Link href="/login" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-              Sign In
-            </Link>
+            <button type="button" onClick={() => setAuthOpen(true)} className="text-sm font-medium text-muted-foreground hover:text-foreground">Sign in</button>
           </div>
         </div>
       </nav>
@@ -307,7 +294,7 @@ export default function TrackPage() {
                         title="Copy tracking number"
                         aria-label="Copy tracking number"
                       >
-                        {copied ? <Check className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4" />}
+                        {copied ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
                       </Button>
                     </div>
                   </div>
@@ -321,24 +308,6 @@ export default function TrackPage() {
                   <div>
                     <p className="text-sm text-muted-foreground">Document Type</p>
                     <p className="font-medium text-foreground">{docType?.type_name || document.document_type_id}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Student</p>
-                    <p className="font-medium">{document.student_name}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Student ID</p>
-                    <p className="font-medium font-mono">{document.student_id}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">College</p>
-                    <p className="font-medium">{document.college}</p>
-                  </div>
-                  <div className="sm:col-span-2">
-                    <p className="text-sm text-muted-foreground">Program / Year</p>
-                    <p className="font-medium">
-                      {document.program} {document.year_level ? `• Year ${document.year_level}` : ""}
-                    </p>
                   </div>
                   {currentDept && (
                     <div className="sm:col-span-2">
@@ -378,7 +347,7 @@ export default function TrackPage() {
                         <div className="absolute left-5 top-10 bottom-0 w-0.5 bg-border" style={{ display: index === workflowSteps.length - 1 ? 'none' : 'block' }} />
                         {/* Step indicator */}
                         <div className={cn(
-                          "relative flex-shrink-0 w-10 h-10 rounded-full border-2 flex items-center justify-center z-10 transition-all",
+                          "relative flex-shrink-0 w-10 h-10 rounded-full border-2 flex items-center justify-center z-10 transition-colors",
                           isCompleted ? "bg-primary border-primary text-primary-foreground" :
                           isCurrent ? "bg-primary border-primary text-primary-foreground ring-4 ring-primary/20" :
                           "bg-background border-muted text-muted-foreground"
@@ -406,10 +375,6 @@ export default function TrackPage() {
                               </span>
                             )}
                           </div>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {step.assigned_role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                            {step.assigned_department_id && ` • Department`}
-                          </p>
                           {isCurrent && log && (
                             <p className="text-sm text-primary mt-1">
                               Current handler action: {log.action_taken.replace('_', ' ')}
@@ -454,9 +419,9 @@ export default function TrackPage() {
                               )} />
                               <div className={cn(
                                 "relative z-10 w-3 h-3 rounded-full border-2 flex items-center justify-center",
-                                log.action_taken === "submit" ? "bg-green-500 border-green-500" :
-                                log.action_taken === "return" || log.action_taken === "reject" ? "bg-red-500 border-red-500" :
-                                log.action_taken === "release" || log.action_taken === "approve" ? "bg-emerald-500 border-emerald-500" :
+                                log.action_taken === "submit" ? "bg-success border-success" :
+                                log.action_taken === "return" || log.action_taken === "reject" ? "bg-destructive border-destructive" :
+                                log.action_taken === "release" || log.action_taken === "approve" ? "bg-success border-success" :
                                 "bg-primary border-primary"
                               )}>
                                 {log.action_taken === "submit" && <CheckCircle className="h-2 w-2 text-white" />}
@@ -496,34 +461,6 @@ export default function TrackPage() {
                         <div>
                           <p className="text-sm text-muted-foreground">Tracking Number</p>
                           <p className="font-mono font-medium">{document.tracking_no}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Student Name</p>
-                          <p className="font-medium">{document.student_name}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Student ID</p>
-                          <p className="font-mono font-medium">{document.student_id}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Student Email</p>
-                          <p className="font-medium">{document.student_email}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">College</p>
-                          <p className="font-medium">{document.college}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Department</p>
-                          <p className="font-medium">{document.department_id}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Program</p>
-                          <p className="font-medium">{document.program || "N/A"}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Year Level</p>
-                          <p className="font-medium">{document.year_level?.toString() || "N/A"}</p>
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">Current Status</p>
@@ -578,6 +515,7 @@ export default function TrackPage() {
           © {new Date().getFullYear()} DocuTrack HEI. All rights reserved.
         </div>
       </footer>
+      <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
     </div>
   );
 }
